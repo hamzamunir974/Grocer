@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base ─────────────────────────────────── */
+@layer base {
+  :root {
+    --color-primary: #FF7A01;
+    --color-gold: #FFA500;
+    --color-cream: #FAF6F1;
+    --color-charcoal: #2B2B2B;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sans bg-cream text-charcoal antialiased;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    @apply font-serif;
+  }
+}
+
+/* ─── Components ──────────────────────────── */
+@layer components {
+  .btn-primary {
+    @apply bg-orange-gradient text-white font-semibold py-3 px-6 rounded-pill 
+           shadow-orange hover:shadow-orange-lg hover:-translate-y-0.5 
+           transition-all duration-200 active:scale-95 cursor-pointer;
+  }
+
+  .btn-ghost {
+    @apply bg-transparent border-2 border-primary text-primary font-semibold 
+           py-3 px-6 rounded-pill hover:bg-primary hover:text-white 
+           transition-all duration-200 cursor-pointer;
+  }
+
+  .card-bento {
+    @apply bg-white rounded-bento shadow-bento p-6 hover:shadow-card 
+           transition-all duration-300;
+  }
+
+  .input-field {
+    @apply w-full bg-cream-dark border border-transparent rounded-card px-4 py-3 
+           text-charcoal placeholder-charcoal-muted font-medium
+           focus:outline-none focus:border-primary focus:bg-white
+           transition-all duration-200;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-pill text-sm font-semibold;
+  }
+
+  .badge-orange {
+    @apply badge bg-primary/10 text-primary;
+  }
+
+  .badge-success {
+    @apply badge bg-success/10 text-success;
+  }
+
+  .badge-warning {
+    @apply badge bg-warning/10 text-warning;
+  }
+
+  .sidebar-item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-card font-medium
+           text-charcoal-light hover:bg-primary/5 hover:text-primary
+           transition-all duration-200 cursor-pointer;
+  }
+
+  .sidebar-item.active {
+    @apply bg-primary/10 text-primary;
+  }
+
+  .skeleton {
+    @apply bg-gradient-to-r from-cream-dark via-cream to-cream-dark 
+           bg-[length:200%_100%] animate-shimmer rounded-card;
+  }
+}
+
+/* ─── Leaflet overrides ───────────────────── */
+.leaflet-container {
+  font-family: 'Inter', sans-serif !important;
+  border-radius: 1.5rem;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 1rem !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important;
+}
+
+/* ─── Scrollbar ───────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF6F1;
+}
+::-webkit-scrollbar-thumb {
+  background: #FF7A01;
+  border-radius: 99px;
+}
