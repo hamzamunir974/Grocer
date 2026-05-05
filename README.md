@@ -395,5 +395,5 @@ MIT License — GrocerX is open source and free to use.
 ---
 
 <div align="center">
-  Built with ❤️ and 🧡 by the GrocerX Team
+  Built with ❤️ and 🧡 by Hamza Munir
 </div>
