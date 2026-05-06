@@ -23,7 +23,7 @@ async function bootstrap() {
 
   // CORS
     app.enableCors({
-        origin: [process.env.FRONTEND_URL, 'http://localhost:5173', /\.vercel\.app$/].filter(Boolean) as (string | RegExp)[],
+        origin: [process.env.FRONTEND_URL, 'https://grocer-omega.vercel.app', 'http://localhost:5173', /\.vercel\.app$/].filter(Boolean) as (string | RegExp)[],
         credentials: true,
     });
 
