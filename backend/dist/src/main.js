@@ -18,7 +18,7 @@ async function bootstrap() {
     app.use((0, cookie_parser_1.default)());
     app.setGlobalPrefix('api');
     app.enableCors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+        origin: [process.env.FRONTEND_URL, 'http://localhost:5173', /\.vercel\.app$/].filter(Boolean),
         credentials: true,
     });
     app.useGlobalPipes(new common_1.ValidationPipe({

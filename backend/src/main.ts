@@ -22,10 +22,10 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // CORS
-  app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-    credentials: true,
-  });
+    app.enableCors({
+        origin: [process.env.FRONTEND_URL, 'http://localhost:5173', /\.vercel\.app$/].filter(Boolean) as (string | RegExp)[],
+        credentials: true,
+    });
 
   // Validation
   app.useGlobalPipes(
