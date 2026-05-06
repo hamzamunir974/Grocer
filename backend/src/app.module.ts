@@ -7,6 +7,7 @@ import { ProductsModule } from './products/products.module';
 import { OrdersModule } from './orders/orders.module';
 import { CategoriesModule } from './categories/categories.module';
 import { UploadModule } from './upload/upload.module';
+import { MailModule } from './mail/mail.module';
 import { TrackingGateway } from './tracking/tracking.gateway';
 import { AppController } from './app.controller';
 
@@ -26,6 +27,7 @@ import { AppController } from './app.controller';
     OrdersModule,
     CategoriesModule,
     UploadModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [TrackingGateway],

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, ShoppingCart, ChevronRight, Plus, MapPin, User, LogOut } from 'lucide-react';
-import { api, formatPrice } from '../lib/api';
+import { Search, ShoppingCart, ChevronRight, Plus, MapPin, User, LogOut, ShoppingBag } from 'lucide-react';
+import { api, formatPrice, IMAGE_BASE_URL } from '../lib/api';
 import { useCartStore } from '../store/cart.store';
 import { useAuthStore } from '../store/auth.store';
 import toast from 'react-hot-toast';
@@ -112,6 +112,13 @@ export function HomePage() {
               )}
             </Link>
 
+            {/* Orders */}
+            {isAuthenticated && (
+              <Link to="/orders" className="relative p-2 hover:bg-primary/5 rounded-card transition-colors">
+                <ShoppingBag size={22} className="text-charcoal" />
+              </Link>
+            )}
+
             {/* Auth */}
             {isAuthenticated ? (
               <div className="flex items-center gap-2">
@@ -166,6 +173,33 @@ export function HomePage() {
           <div className="absolute -right-8 -bottom-20 w-48 h-48 bg-white/10 rounded-full" />
           <div className="absolute right-24 top-8 text-7xl select-none opacity-40">🛒</div>
         </section>
+
+        {/* ── Quick Access ──────────────────────── */}
+        {isAuthenticated && (
+          <div className="flex items-center gap-4">
+            <Link 
+              to="/orders" 
+              className="flex-1 bg-white rounded-card p-4 border border-cream-dark hover:border-primary hover:shadow-card transition-all flex items-center justify-between group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center text-xl">📜</div>
+                <div>
+                  <h3 className="font-bold text-charcoal text-sm">Order History</h3>
+                  <p className="text-xs text-charcoal-muted">View all your past and current orders</p>
+                </div>
+              </div>
+              <ChevronRight size={18} className="text-cream-dark group-hover:text-primary transition-colors" />
+            </Link>
+            
+            <div className="hidden md:flex flex-1 bg-white rounded-card p-4 border border-cream-dark flex items-center gap-3">
+              <div className="w-10 h-10 bg-success/10 rounded-full flex items-center justify-center text-xl">⭐</div>
+              <div>
+                <h3 className="font-bold text-charcoal text-sm">Loyalty Points</h3>
+                <p className="text-xs text-charcoal-muted">You have 150 points to spend</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── Active Order Tracker ──────────────── */}
         {activeOrder && (
@@ -308,7 +342,7 @@ function ProductCard({ product, onAdd, delay }: { product: Product; onAdd: (p: P
       <div className="relative aspect-square bg-cream-dark overflow-hidden">
         {product.imageUrl ? (
           <img
-            src={product.imageUrl.startsWith('/images/') ? product.imageUrl : `http://localhost:3001${product.imageUrl}`}
+            src={product.imageUrl.startsWith('/images/') ? product.imageUrl : `${IMAGE_BASE_URL}${product.imageUrl}`}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />

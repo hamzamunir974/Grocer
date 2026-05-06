@@ -8,11 +8,14 @@ import { Repository } from 'typeorm';
 import { Order, OrderStatus } from './order.entity';
 import { User, UserRole } from '../users/user.entity';
 
+import { UsersService } from '../users/users.service';
+
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Order)
     private orderRepo: Repository<Order>,
+    private usersService: UsersService,
   ) {}
 
   async create(customerId: string, body: any): Promise<Order> {
@@ -96,5 +99,20 @@ export class OrdersService {
   ): Promise<Order> {
     await this.orderRepo.update(orderId, { riderLat: lat, riderLng: lng });
     return this.orderRepo.findOne({ where: { id: orderId } }) as Promise<Order>;
+  }
+
+  async getStats() {
+    const totalOrders = await this.orderRepo.count();
+    const orders = await this.orderRepo.find();
+    const revenue = orders.reduce((acc, o) => acc + o.totalInCents, 0);
+    const activeOrders = orders.filter((o) => o.status !== OrderStatus.DELIVERED && o.status !== OrderStatus.CANCELLED).length;
+    const totalRiders = await this.usersService.countRiders();
+    
+    return {
+      totalOrders,
+      revenue,
+      activeOrders,
+      totalRiders,
+    };
   }
 }

@@ -8,11 +8,14 @@ import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcryptjs';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
 
+import { MailService } from '../mail/mail.service';
+
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private mailService: MailService,
   ) {}
 
   async registerStart(dto: RegisterDto) {
@@ -43,20 +46,20 @@ export class AuthService {
       });
     }
 
-    console.log(`\n📧 [REGISTRATION PIN] for ${dto.email}: ${pin}\n`);
+    await this.mailService.sendPin(dto.email, pin);
     return { message: 'PIN sent to email' };
   }
 
   async registerVerify(email: string, pin: string) {
     const user = await this.usersService.findByEmail(email);
-    if (!user || user.otpCode !== pin || new Date() > user.otpExpiresAt) {
+    if (!user || user.otpCode !== pin || !user.otpExpiresAt || new Date() > user.otpExpiresAt) {
       throw new UnauthorizedException('Invalid or expired PIN');
     }
 
     await this.usersService.update(user.id, {
       isVerified: true,
-      otpCode: null,
-      otpExpiresAt: null,
+      otpCode: undefined,
+      otpExpiresAt: undefined,
     });
 
     const payload = { sub: user.id, email: user.email, role: user.role };
@@ -108,7 +111,7 @@ export class AuthService {
         fullName: googleUser.fullName,
         password: Math.random().toString(36).slice(-12), // Temporary password
         isActive: true,
-        isVerified: false, // Must verify with PIN
+        isVerified: true, // Auto-verified via Google as per user request
       });
     }
 
@@ -145,14 +148,14 @@ export class AuthService {
 
   async verifyOtp(email: string, code: string) {
     const user = await this.usersService.findByEmail(email);
-    if (!user || user.otpCode !== code || new Date() > user.otpExpiresAt) {
+    if (!user || user.otpCode !== code || !user.otpExpiresAt || new Date() > user.otpExpiresAt) {
       throw new UnauthorizedException('Invalid or expired OTP');
     }
 
     // Clear OTP after use
     await this.usersService.update(user.id, {
-      otpCode: null,
-      otpExpiresAt: null,
+      otpCode: undefined,
+      otpExpiresAt: undefined,
     });
 
     const payload = { sub: user.id, email: user.email, role: user.role };

@@ -55,7 +55,7 @@ export function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:3001/api/auth/google-demo';
+    window.location.href = 'http://localhost:3001/api/auth/google';
   };
 
   return (

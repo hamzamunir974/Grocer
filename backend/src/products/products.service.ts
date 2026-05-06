@@ -17,7 +17,7 @@ export class ProductsService {
   ) {}
 
   async create(dto: CreateProductDto, imageFile?: Express.Multer.File): Promise<Product> {
-    let imageUrl: string | undefined;
+    let imageUrl = dto.imageUrl;
 
     if (imageFile) {
       const result = await this.imageService.processProductImage(

@@ -40,6 +40,10 @@ export class UsersService {
     });
   }
 
+  async countRiders(): Promise<number> {
+    return this.userRepo.count({ where: { role: 'rider' as any } });
+  }
+
   async update(id: string, data: Partial<User>): Promise<User> {
     await this.userRepo.update(id, data);
     return this.findById(id);

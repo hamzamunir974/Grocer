@@ -43,10 +43,10 @@ export class User {
   isVerified: boolean;
 
   @Column({ nullable: true })
-  otpCode: string;
+  otpCode?: string;
 
   @Column({ nullable: true })
-  otpExpiresAt: Date;
+  otpExpiresAt?: Date;
 
   @CreateDateColumn()
   createdAt: Date;

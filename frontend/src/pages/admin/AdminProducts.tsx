@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Plus, Search, Pencil, Trash2, X, Upload, Loader2, AlertCircle } from 'lucide-react';
-import { api, formatPrice } from '../../lib/api';
+import { api, formatPrice, IMAGE_BASE_URL } from '../../lib/api';
 import toast from 'react-hot-toast';
 
 interface Product {
@@ -127,7 +127,7 @@ export function AdminProducts() {
                     <div className="w-12 h-12 rounded-lg overflow-hidden bg-cream-dark shrink-0 border border-cream-dark">
                       {product.imageUrl ? (
                         <img
-                          src={`http://localhost:3001${product.imageUrl}`}
+                          src={`${IMAGE_BASE_URL}${product.imageUrl}`}
                           alt={product.name}
                           className="w-full h-full object-cover"
                         />
@@ -229,7 +229,7 @@ function ProductModal({
     isAvailable: product?.isAvailable ?? true,
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(product?.imageUrl ? `http://localhost:3001${product.imageUrl}` : null);
+  const [imagePreview, setImagePreview] = useState<string | null>(product?.imageUrl ? `${IMAGE_BASE_URL}${product.imageUrl}` : null);
   const [loading, setLoading] = useState(false);
   const [cropWarning, setCropWarning] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);

@@ -21,6 +21,13 @@ import { OrderStatus } from './order.entity';
 export class OrdersController {
   constructor(private ordersService: OrdersService) {}
 
+  @Get('stats')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async getStats() {
+    return this.ordersService.getStats();
+  }
+
   @Get()
   findAll(@Req() req: any) {
     return this.ordersService.findAll(req.user);

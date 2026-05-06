@@ -8,6 +8,7 @@ import { OrderTrackingPage } from './pages/OrderTrackingPage';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { RiderInterface } from './pages/RiderInterface';
 import { CartPage } from './pages/CartPage';
+import { OrdersPage } from './pages/OrdersPage';
 
 function ProtectedRoute({
   children,
@@ -34,6 +35,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <OrderTrackingPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/orders"
+        element={
+          <ProtectedRoute>
+            <OrdersPage />
           </ProtectedRoute>
         }
       />

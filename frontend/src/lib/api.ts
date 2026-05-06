@@ -6,6 +6,8 @@ export const api = axios.create({
   withCredentials: true,
 });
 
+export const IMAGE_BASE_URL = 'http://localhost:3001';
+
 // Attach token from store
 api.interceptors.request.use((config) => {
   const { token } = useAuthStore.getState();
