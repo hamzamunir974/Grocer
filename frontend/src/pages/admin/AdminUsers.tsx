@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../lib/api';
-import { Search, Shield, Bike, User as UserIcon, Check, Plus, X } from 'lucide-react';
+import { Search, Shield, Bike, User as UserIcon, Plus, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export function AdminUsers() {
