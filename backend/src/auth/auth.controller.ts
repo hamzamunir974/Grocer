@@ -19,11 +19,16 @@ import { AuthGuard } from '@nestjs/passport';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('register')
-  async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
-    const { user, token } = await this.authService.register(dto);
+  @Post('register/start')
+  async registerStart(@Body() dto: RegisterDto) {
+    return this.authService.registerStart(dto);
+  }
 
-    // Set HttpOnly cookie for auto-login
+  @Post('register/verify')
+  async registerVerify(@Body('email') email: string, @Body('pin') pin: string, @Res({ passthrough: true }) res: Response) {
+    const { user, token } = await this.authService.registerVerify(email, pin);
+
+    // Set HttpOnly cookie for auto-login after verification
     res.cookie('access_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -94,5 +99,24 @@ export class AuthController {
     // Redirect to frontend with token/user info in URL for store to pick up
     const frontendUrl = 'http://localhost:5173';
     return res.redirect(`${frontendUrl}/login?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
+  }
+
+  @Post('otp/send')
+  async sendOtp(@Body('email') email: string) {
+    return this.authService.sendOtp(email);
+  }
+
+  @Post('otp/verify')
+  async verifyOtp(@Body('email') email: string, @Body('code') code: string, @Res({ passthrough: true }) res: Response) {
+    const { user, token } = await this.authService.verifyOtp(email, code);
+    
+    res.cookie('access_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return { user, token };
   }
 }

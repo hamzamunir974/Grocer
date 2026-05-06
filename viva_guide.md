@@ -23,7 +23,8 @@ NestJS is a progressive Node.js framework that uses **TypeScript**.
 *   **Passport.js**: Used for the authentication strategies.
 *   **JWT (JSON Web Token)**: Used to identify the logged-in user securely.
 *   **Guards**: We implemented `JwtAuthGuard` and `RolesGuard`. If a user is not an Admin, the `RolesGuard` will block them from the `/admin` routes.
-*   **Hashing**: We used `bcryptjs` to hash passwords before saving them, ensuring that even if the database is leaked, user passwords remain secure.
+*   **Hashing**: We used `bcryptjs` to hash passwords before saving them.
+*   **PIN Verification Flow**: During registration (both manual and Google Signup), users receive a 6-digit PIN via email. They must enter this PIN to verify their identity and activate their account. This ensures that every customer on the platform is verified.
 
 ## 🎨 5. Frontend: React & Tailwind
 *   **React Router**: Handles the navigation between pages.

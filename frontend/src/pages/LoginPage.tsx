@@ -21,6 +21,12 @@ export function LoginPage() {
     if (token && userStr) {
       try {
         const user = JSON.parse(decodeURIComponent(userStr));
+        if (!user.isVerified) {
+          toast.error('Almost there! Please complete your registration and verify your PIN.');
+          // Redirect to register with email pre-filled
+          navigate(`/register?email=${user.email}&name=${user.fullName}`);
+          return;
+        }
         setAuth(user, token);
         toast.success(`Welcome back, ${user.fullName.split(' ')[0]}! 🎉`);
         navigate('/');

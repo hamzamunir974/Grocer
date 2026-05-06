@@ -19,11 +19,12 @@ async function seed() {
   if (!adminExists) {
     await usersService.create({
       email: 'admin@grocerx.com',
-      password: await bcrypt.hash('password123', 12),
+      password: 'password123',
       fullName: 'GrocerX Admin',
       phone: '+92-300-0000001',
       role: UserRole.ADMIN,
-    });
+      isVerified: true,
+    } as any);
     console.log('✅ Admin created: admin@grocerx.com / password123');
   }
 
@@ -31,11 +32,12 @@ async function seed() {
   if (!riderExists) {
     await usersService.create({
       email: 'rider@grocerx.com',
-      password: await bcrypt.hash('password123', 12),
+      password: 'password123',
       fullName: 'Ali Khan (Rider)',
       phone: '+92-300-0000002',
       role: UserRole.RIDER,
-    });
+      isVerified: true,
+    } as any);
     console.log('✅ Rider created: rider@grocerx.com / password123');
   }
 
@@ -43,12 +45,13 @@ async function seed() {
   if (!customerExists) {
     await usersService.create({
       email: 'customer@grocerx.com',
-      password: await bcrypt.hash('password123', 12),
+      password: 'password123',
       fullName: 'Sara Ahmed',
       phone: '+92-300-0000003',
       address: 'DHA Phase 5, Lahore',
       role: UserRole.CUSTOMER,
-    });
+      isVerified: true,
+    } as any);
     console.log('✅ Customer created: customer@grocerx.com / password123');
   }
 
