@@ -2,11 +2,11 @@ import axios from 'axios';
 import { useAuthStore } from '../store/auth.store';
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   withCredentials: true,
 });
 
-export const IMAGE_BASE_URL = 'http://localhost:3001';
+export const IMAGE_BASE_URL = import.meta.env.VITE_IMAGE_URL || window.location.origin;
 
 // Attach token from store
 api.interceptors.request.use((config) => {
