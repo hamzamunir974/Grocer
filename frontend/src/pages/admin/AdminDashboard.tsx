@@ -1,8 +1,10 @@
+import { useEffect } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Package, ShoppingBag, Users, LogOut, ChevronRight } from 'lucide-react';
 import { useAuthStore } from '../../store/auth.store';
 import { AdminProducts } from './AdminProducts';
 import { AdminOrders } from './AdminOrders';
+import { AdminUsers } from './AdminUsers';
 import toast from 'react-hot-toast';
 
 const NAV = [
@@ -129,6 +131,18 @@ function DashboardHome() {
 }
 
 export function AdminDashboard() {
+  const { user, isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated || user?.role !== 'admin') {
+      toast.error('Access denied. Admins only!');
+      navigate('/');
+    }
+  }, [isAuthenticated, user, navigate]);
+
+  if (!isAuthenticated || user?.role !== 'admin') return null;
+
   return (
     <div className="flex min-h-screen bg-cream">
       <Sidebar />
@@ -137,6 +151,7 @@ export function AdminDashboard() {
           <Route index element={<DashboardHome />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
+          <Route path="users" element={<AdminUsers />} />
         </Routes>
       </main>
     </div>

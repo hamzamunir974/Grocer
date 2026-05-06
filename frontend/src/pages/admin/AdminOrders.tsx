@@ -14,36 +14,33 @@ const STATUS_COLORS: Record<string, string> = {
 
 const STATUS_FLOW = ['pending', 'confirmed', 'preparing', 'out_for_delivery', 'delivered'];
 
-const MOCK_ORDERS = [
-  {
-    id: 'ord-001', status: 'out_for_delivery', totalInCents: 113000,
-    customer: { fullName: 'Sara Ahmed', email: 'sara@example.com' },
-    rider: { fullName: 'Ali Khan' },
-    items: [{ name: 'Bananas', quantity: 2 }, { name: 'Bread', quantity: 1 }],
-    deliveryAddress: 'DHA Phase 5, Lahore', createdAt: new Date().toISOString(),
-  },
-  {
-    id: 'ord-002', status: 'pending', totalInCents: 75000,
-    customer: { fullName: 'Ahmed Ali', email: 'ahmed@example.com' },
-    rider: null,
-    items: [{ name: 'Milk', quantity: 3 }],
-    deliveryAddress: 'Gulberg III, Lahore', createdAt: new Date().toISOString(),
-  },
-];
+
 
 export function AdminOrders() {
   const [orders, setOrders] = useState<any[]>([]);
+  const [riders, setRiders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
-  useEffect(() => { loadOrders(); }, []);
+  useEffect(() => { 
+    loadOrders();
+    loadRiders();
+  }, []);
+
+  const loadRiders = async () => {
+    try {
+      const res = await api.get('/users/riders');
+      setRiders(res.data);
+    } catch {}
+  };
 
   const loadOrders = async () => {
     try {
       const res = await api.get('/orders');
       setOrders(res.data);
     } catch {
-      setOrders(MOCK_ORDERS);
+      toast.error('Failed to load real orders from server');
+      setOrders([]);
     } finally {
       setLoading(false);
     }
@@ -55,8 +52,17 @@ export function AdminOrders() {
       setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, status } : o));
       toast.success('Status updated!');
     } catch {
-      setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, status } : o));
-      toast.success('Status updated!');
+      toast.error('Failed to update status');
+    }
+  };
+
+  const handleAssignRider = async (orderId: string, riderId: string) => {
+    try {
+      await api.patch(`/orders/${orderId}/assign-rider`, { riderId });
+      toast.success('Rider assigned!');
+      loadOrders(); // Refresh to show new rider and status
+    } catch {
+      toast.error('Failed to assign rider');
     }
   };
 
@@ -109,6 +115,20 @@ export function AdminOrders() {
               <div className="text-right">
                 <p className="font-bold text-charcoal">{formatPriceFull(order.totalInCents)}</p>
                 <p className="text-xs text-charcoal-muted mt-1">{new Date(order.createdAt).toLocaleDateString()}</p>
+                
+                {/* Rider Assignment Dropdown */}
+                <div className="mt-4">
+                  <select 
+                    className="input-field py-1 px-2 text-xs w-40"
+                    value={order.riderId || ''}
+                    onChange={(e) => handleAssignRider(order.id, e.target.value)}
+                  >
+                    <option value="">Assign Rider...</option>
+                    {riders.map(r => (
+                      <option key={r.id} value={r.id}>{r.fullName}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 

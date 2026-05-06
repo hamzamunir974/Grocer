@@ -39,13 +39,11 @@ export class Order {
   riderId: string;
 
   @Column({
-    type: 'enum',
-    enum: OrderStatus,
     default: OrderStatus.PENDING,
   })
   status: OrderStatus;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'simple-json' })
   items: Array<{
     productId: string;
     name: string;

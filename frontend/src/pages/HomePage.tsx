@@ -34,10 +34,20 @@ export function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const { addItem, totalItems } = useCartStore();
   const { user, isAuthenticated, logout } = useAuthStore();
+  const [activeOrder, setActiveOrder] = useState<any>(null);
 
   useEffect(() => {
     fetchProducts();
-  }, [search, selectedCategory]);
+    if (isAuthenticated) fetchActiveOrder();
+  }, [search, selectedCategory, isAuthenticated]);
+
+  const fetchActiveOrder = async () => {
+    try {
+      const res = await api.get('/orders');
+      const active = res.data.find((o: any) => o.status !== 'delivered' && o.status !== 'cancelled');
+      setActiveOrder(active);
+    } catch {}
+  };
 
   const fetchProducts = async () => {
     try {
@@ -47,8 +57,7 @@ export function HomePage() {
       });
       setProducts(res.data);
     } catch {
-      // Use mock data if API not connected
-      setProducts(getMockProducts());
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -157,6 +166,27 @@ export function HomePage() {
           <div className="absolute -right-8 -bottom-20 w-48 h-48 bg-white/10 rounded-full" />
           <div className="absolute right-24 top-8 text-7xl select-none opacity-40">🛒</div>
         </section>
+
+        {/* ── Active Order Tracker ──────────────── */}
+        {activeOrder && (
+          <Link
+            to={`/track/${activeOrder.id}`}
+            className="flex items-center gap-4 bg-white rounded-bento p-4 shadow-orange border border-primary/20 hover:border-primary transition-all animate-slideIn group"
+          >
+            <div className="w-12 h-12 bg-orange-gradient rounded-full flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 transition-transform">
+              🛵
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-charcoal text-sm md:text-base">Your order is being delivered!</h3>
+              <p className="text-xs text-charcoal-muted">
+                Status: <span className="text-primary font-bold uppercase">{activeOrder.status.replace(/_/g, ' ')}</span> • #{activeOrder.id.slice(0, 8).toUpperCase()}
+              </p>
+            </div>
+            <div className="btn-primary py-2 px-4 text-xs flex items-center gap-2">
+              Track Live <ChevronRight size={14} />
+            </div>
+          </Link>
+        )}
 
         {/* ── Categories ───────────────────────── */}
         <section>
@@ -330,15 +360,4 @@ function getCategoryEmoji(name?: string): string {
   return map[name || ''] || '🛒';
 }
 
-function getMockProducts(): Product[] {
-  return [
-    { id: '1', name: 'Organic Bananas (1kg)', priceInCents: 18000, unit: 'kg', stock: 50, imageUrl: '/images/products/bananas.png', category: { name: 'Fruits & Vegetables', icon: '🥬' } },
-    { id: '2', name: 'Red Apples (500g)', priceInCents: 32000, unit: '500g', stock: 30, imageUrl: '/images/products/red-apples.png', category: { name: 'Fruits & Vegetables', icon: '🥬' } },
-    { id: '3', name: 'Sourdough Bread', priceInCents: 45000, unit: 'loaf', stock: 15, imageUrl: '/images/products/sourdough.png', category: { name: 'Bakery', icon: '🍞' } },
-    { id: '4', name: 'Croissants (4pcs)', priceInCents: 38000, unit: '4 pcs', stock: 20, imageUrl: '/images/products/croissants.png', category: { name: 'Bakery', icon: '🍞' } },
-    { id: '5', name: 'Full Cream Milk (1L)', priceInCents: 22000, unit: '1L', stock: 100, imageUrl: '/images/products/milk.png', category: { name: 'Dairy & Eggs', icon: '🥛' } },
-    { id: '6', name: 'Farm Fresh Eggs', priceInCents: 35000, unit: 'dozen', stock: 60, imageUrl: '/images/products/eggs.png', category: { name: 'Dairy & Eggs', icon: '🥛' } },
-    { id: '7', name: 'Mineral Water (1.5L)', priceInCents: 8000, unit: '1.5L', stock: 200, imageUrl: '/images/products/water.png', category: { name: 'Beverages', icon: '🧃' } },
-    { id: '8', name: 'Mixed Nuts (250g)', priceInCents: 85000, unit: '250g', stock: 40, imageUrl: '/images/products/mixed-nuts.png', category: { name: 'Snacks', icon: '🍿' } },
-  ];
-}
+

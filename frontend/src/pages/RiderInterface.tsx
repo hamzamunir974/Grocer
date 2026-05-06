@@ -8,6 +8,29 @@ import { Navigation, CheckCircle2, Bike, Package, MapPin, RefreshCw, LogOut } fr
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
+function CountdownTimer({ targetDate }: { targetDate: string }) {
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    const calculate = () => {
+      const diff = new Date(targetDate).getTime() - new Date().getTime();
+      if (diff <= 0) return setTimeLeft('Late');
+      const mins = Math.floor(diff / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
+      setTimeLeft(`${mins}:${secs.toString().padStart(2, '0')} left`);
+    };
+    calculate();
+    const interval = setInterval(calculate, 1000);
+    return () => clearInterval(interval);
+  }, [targetDate]);
+
+  return (
+    <span className={`font-mono font-bold ${timeLeft === 'Late' ? 'text-red-600 animate-pulse' : 'text-primary'}`}>
+      {timeLeft}
+    </span>
+  );
+}
+
 // Fix leaflet icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -17,7 +40,7 @@ L.Icon.Default.mergeOptions({
 });
 
 export function RiderInterface() {
-  const { user, logout } = useAuthStore();
+  const { user, isAuthenticated, logout } = useAuthStore();
   const navigate = useNavigate();
   const [orders, setOrders] = useState<any[]>([]);
   const [activeOrder, setActiveOrder] = useState<any | null>(null);
@@ -28,13 +51,18 @@ export function RiderInterface() {
   const watchIdRef = useRef<number | null>(null);
 
   useEffect(() => {
+    if (!isAuthenticated || user?.role !== 'rider') {
+      toast.error('Access denied. Riders only!');
+      navigate('/');
+      return;
+    }
     loadOrders();
     setupSocket();
     return () => {
       socketRef.current?.disconnect();
       if (watchIdRef.current !== null) navigator.geolocation.clearWatch(watchIdRef.current);
     };
-  }, []);
+  }, [isAuthenticated, user, navigate]);
 
   const loadOrders = async () => {
     try {
@@ -43,15 +71,8 @@ export function RiderInterface() {
       const active = res.data.find((o: any) => o.status === 'out_for_delivery');
       if (active) setActiveOrder(active);
     } catch {
-      const mockOrders = [
-        {
-          id: 'mock-001', status: 'confirmed',
-          customer: { fullName: 'Sara Ahmed', phone: '+92-300-1234567' },
-          deliveryAddress: 'DHA Phase 5, Lahore', totalInCents: 113000,
-          items: [{ name: 'Bananas ×2' }, { name: 'Sourdough Bread ×1' }],
-        },
-      ];
-      setOrders(mockOrders);
+      toast.error('Failed to load real orders');
+      setOrders([]);
     } finally {
       setLoading(false);
     }
@@ -167,7 +188,15 @@ export function RiderInterface() {
             <div className="flex items-center gap-2 mb-4">
               <div className="w-3 h-3 bg-primary rounded-full animate-pulse" />
               <h2 className="font-serif font-bold text-charcoal">Active Delivery</h2>
-              <span className="badge badge-orange ml-auto">#{activeOrder.id.slice(0, 8).toUpperCase()}</span>
+              <div className="ml-auto flex flex-col items-end">
+                <span className="badge badge-orange">#{activeOrder.id.slice(0, 8).toUpperCase()}</span>
+                {activeOrder.estimatedDelivery && (
+                  <div className="mt-1 flex items-center gap-1.5 text-xs">
+                    <span className="text-charcoal-muted">Target:</span>
+                    <CountdownTimer targetDate={activeOrder.estimatedDelivery} />
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="space-y-3 mb-6">
@@ -180,12 +209,20 @@ export function RiderInterface() {
               </div>
               <div className="flex items-start gap-3">
                 <Package size={16} className="text-primary mt-0.5 shrink-0" />
-                <div>
-                  <p className="text-xs text-charcoal-muted font-semibold uppercase tracking-wide">Customer</p>
+                <div className="flex-1">
+                  <p className="text-xs text-charcoal-muted font-semibold uppercase tracking-wide">Order Details</p>
                   <p className="font-medium text-charcoal text-sm">{activeOrder.customer?.fullName}</p>
+                  <div className="mt-1 p-2 bg-cream rounded-lg">
+                     <p className="text-xs text-charcoal-light">
+                       {activeOrder.items?.map((i: any) => `${i.name} ×${i.quantity}`).join(', ')}
+                     </p>
+                     <p className="text-xs font-bold text-primary mt-1">
+                       Total: Rs {(activeOrder.totalInCents / 100).toLocaleString()}
+                     </p>
+                  </div>
                   {activeOrder.customer?.phone && (
-                    <a href={`tel:${activeOrder.customer.phone}`} className="text-xs text-primary hover:underline">
-                      {activeOrder.customer.phone}
+                    <a href={`tel:${activeOrder.customer.phone}`} className="inline-block mt-2 text-xs font-bold text-white bg-primary px-3 py-1 rounded-pill hover:bg-primary-dark transition-colors">
+                      📞 Call Customer: {activeOrder.customer.phone}
                     </a>
                   )}
                 </div>

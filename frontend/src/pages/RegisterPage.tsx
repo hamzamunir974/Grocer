@@ -15,16 +15,24 @@ export function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post('/auth/register', form);
-      const loginRes = await api.post('/auth/login', { email: form.email, password: form.password });
-      setAuth(loginRes.data.user, loginRes.data.token);
+      const res = await api.post('/auth/register', form);
+      setAuth(res.data.user, res.data.token);
       toast.success('Account created! Welcome to GrocerX 🎉');
       navigate('/');
     } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Registration failed');
+      const message = err.response?.data?.message;
+      if (Array.isArray(message)) {
+        toast.error(message[0]); // Show first validation error
+      } else {
+        toast.error(message || 'Registration failed');
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = 'http://localhost:3001/api/auth/google-demo';
   };
 
   const update = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -64,6 +72,29 @@ export function RegisterPage() {
 
             <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2 mt-4">
               {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <>Create Account <ArrowRight size={18} /></>}
+            </button>
+
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-cream-dark"></div>
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-white px-2 text-charcoal-muted font-semibold tracking-wider">or sign up with</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              className="w-full flex items-center justify-center gap-3 bg-white border border-cream-dark py-3 rounded-card text-charcoal font-semibold hover:bg-cream/5 transition-all shadow-sm"
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18">
+                <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285f4"/>
+                <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34a853"/>
+                <path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.96H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.041l3.007-2.334z" fill="#fbbc05"/>
+                <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.443 2.048.957 4.959L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z" fill="#ea4335"/>
+              </svg>
+              Google
             </button>
           </form>
 

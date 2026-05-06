@@ -22,21 +22,9 @@ interface Category {
   icon: string;
 }
 
-const MOCK_PRODUCTS: Product[] = [
-  { id: '1', name: 'Organic Bananas (1kg)', priceInCents: 18000, stock: 100, unit: 'kg', isAvailable: true, categoryId: 'c1', category: { id: 'c1', name: 'Fruits & Vegetables', icon: '🥬' } },
-  { id: '2', name: 'Sourdough Bread', priceInCents: 45000, stock: 30, unit: 'loaf', isAvailable: true, categoryId: 'c2', category: { id: 'c2', name: 'Bakery', icon: '🍞' } },
-  { id: '3', name: 'Full Cream Milk (1L)', priceInCents: 22000, stock: 120, unit: '1L', isAvailable: true, categoryId: 'c3', category: { id: 'c3', name: 'Dairy & Eggs', icon: '🥛' } },
-  { id: '4', name: 'Mixed Nuts (250g)', priceInCents: 85000, stock: 8, unit: '250g', isAvailable: true, categoryId: 'c5', category: { id: 'c5', name: 'Snacks', icon: '🍿' } },
-];
 
-const MOCK_CATEGORIES: Category[] = [
-  { id: 'c1', name: 'Fruits & Vegetables', icon: '🥬' },
-  { id: 'c2', name: 'Bakery', icon: '🍞' },
-  { id: 'c3', name: 'Dairy & Eggs', icon: '🥛' },
-  { id: 'c4', name: 'Meat & Fish', icon: '🥩' },
-  { id: 'c5', name: 'Snacks', icon: '🍿' },
-  { id: 'c6', name: 'Beverages', icon: '🧃' },
-];
+
+
 
 export function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -59,8 +47,9 @@ export function AdminProducts() {
       setProducts(pRes.data);
       setCategories(cRes.data);
     } catch {
-      setProducts(MOCK_PRODUCTS);
-      setCategories(MOCK_CATEGORIES);
+      toast.error('Failed to load real products from server');
+      setProducts([]);
+      setCategories([]);
     } finally {
       setLoading(false);
     }
@@ -73,8 +62,7 @@ export function AdminProducts() {
       setProducts((prev) => prev.filter((p) => p.id !== id));
       toast.success('Product deleted');
     } catch {
-      setProducts((prev) => prev.filter((p) => p.id !== id));
-      toast.success('Product deleted');
+      toast.error('Failed to delete product');
     }
   };
 
@@ -286,17 +274,8 @@ function ProductModal({
       }
       toast.success(product ? 'Product updated!' : 'Product created!');
       onSaved(res.data);
-    } catch {
-      // Mock save
-      const mockProduct: Product = {
-        id: product?.id || String(Date.now()),
-        ...form,
-        priceInCents: form.priceInCents * 100,
-        imageUrl: imagePreview?.startsWith('http://localhost') ? product?.imageUrl : undefined,
-        category: categories.find((c) => c.id === form.categoryId),
-      };
-      toast.success(product ? 'Product updated!' : 'Product created!');
-      onSaved(mockProduct);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to save product');
     } finally {
       setLoading(false);
     }

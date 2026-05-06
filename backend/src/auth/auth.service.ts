@@ -27,8 +27,11 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    const { password, ...result } = user;
-    return result;
+    const { password: _, ...userWithoutPassword } = user;
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    const token = this.jwtService.sign(payload);
+
+    return { user: userWithoutPassword, token };
   }
 
   async login(dto: LoginDto) {
@@ -57,5 +60,25 @@ export class AuthService {
     const user = await this.usersService.findById(userId);
     const { password, ...result } = user;
     return result;
+  }
+
+  async validateGoogleUser(googleUser: any) {
+    let user = await this.usersService.findByEmail(googleUser.email);
+
+    if (!user) {
+      // Create new user if they don't exist
+      user = await this.usersService.create({
+        email: googleUser.email,
+        fullName: googleUser.fullName,
+        password: Math.random().toString(36).slice(-12), // Random password for OAuth users
+        isActive: true,
+      });
+    }
+
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    const token = this.jwtService.sign(payload);
+
+    const { password: _, ...userWithoutPassword } = user;
+    return { user: userWithoutPassword, token };
   }
 }

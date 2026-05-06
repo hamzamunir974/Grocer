@@ -13,20 +13,12 @@ import { AppController } from './app.controller';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        host: config.get('DB_HOST', 'localhost'),
-        port: config.get<number>('DB_PORT', 5432),
-        username: config.get('DB_USER', 'grocerx'),
-        password: config.get('DB_PASS', 'grocerx_secret'),
-        database: config.get('DB_NAME', 'grocerx_db'),
-        autoLoadEntities: true,
-        synchronize: config.get('NODE_ENV') !== 'production',
-        logging: config.get('NODE_ENV') === 'development',
-      }),
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: 'database.sqlite',
+      autoLoadEntities: true,
+      synchronize: true, // Auto-create tables for SQLite dev
+      logging: true,
     }),
     AuthModule,
     UsersModule,

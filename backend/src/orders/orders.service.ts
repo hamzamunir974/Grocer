@@ -82,6 +82,10 @@ export class OrdersService {
 
     order.riderId = riderId;
     order.status = OrderStatus.CONFIRMED;
+    // Set estimated delivery to 30 minutes from now
+    const estimate = new Date();
+    estimate.setMinutes(estimate.getMinutes() + 30);
+    order.estimatedDelivery = estimate.toISOString();
     return this.orderRepo.save(order);
   }
 
